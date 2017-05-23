@@ -110,9 +110,10 @@ class PID:
         :rtype: bool
         """
         now = time.time()
+        delta_t = now - self._last_update
 
         # it's time to update PID or it's a forced update ?
-        if now - self._last_update > self.update_every or force:
+        if delta_t > self.update_every or force:
             self._last_update = now
 
             # compute error
@@ -123,10 +124,10 @@ class PID:
 
             # integral term
             # errors sum with second weighting
-            self._sum_err += self._err * self.update_every
+            self._sum_err += self._err * delta_t
 
             if self.ti > 0.0:
-                self._ki = self.update_every / self.ti
+                self._ki = 1.0 / self.ti
                 # check integral saturation
                 if self._sum_err > self._sum_err_max / self._ki:
                     self._sum_err = self._sum_err_max / self._ki
@@ -135,10 +136,10 @@ class PID:
             else:
                 self._ki = 0.0
 
-            self._term_i = self._ki * self._sum_err
+            self._term_i = self._sum_err * self._ki
 
             # derivative term
-            self._term_d = - (self.td / self.update_every) * ((self.pv_scale - self._last_input) / self.update_every)
+            self._term_d = - self.td * ((self.pv_scale - self._last_input) / delta_t)
 
             # for next cycle
             self._last_input = self.pv_scale
