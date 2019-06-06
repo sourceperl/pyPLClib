@@ -3,6 +3,7 @@
 # Simple script to display PID response (Y)/time in second (0 to 3600s here)
 # use matplotlib to display result
 
+import time
 from pyPLClib import PID
 import matplotlib.pyplot as plt
 
@@ -31,7 +32,8 @@ for sec in a_secs:
     if sec == 500:
         pid1.sp = 50
         pid1.start()
-    # update PID
+    # update PID (simulate a PID update every seconds)
+    pid1._last_update = time.time() - 1.0
     pid1.update(force=True)
 
 # display plot
