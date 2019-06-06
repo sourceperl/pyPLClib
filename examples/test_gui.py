@@ -54,8 +54,9 @@ class FrmMain(FrmTab):
         self.lbl_sp = tk.Label(self.frm1, text='Set-Point (0/100)')
         self.lbl_sp.grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
         self.ent_sp = tk.Entry(self.frm1, width=16, validate='all', textvariable=self.sp_str)
-        self.ent_sp.bind("<Return>", lambda evt: self.set_sp())
         self.ent_sp.grid(row=0, column=1, sticky=tk.W, padx=5, pady=5)
+        self.ent_sp.bind("<KP_Enter>", self.set_sp)
+        self.ent_sp.bind("<Return>", self.set_sp)
         self.but_sp = tk.Button(self.frm1, text='Set SP', command=self.set_sp)
         self.but_sp.grid(row=0, column=2, sticky=tk.EW, padx=5, pady=5)
         # pv
@@ -64,6 +65,8 @@ class FrmMain(FrmTab):
         self.ent_pv = tk.Entry(self.frm1, width=16, textvariable=self.pv_str)
         self.ent_pv.bind("<Return>", lambda evt: self.set_pv())
         self.ent_pv.grid(row=1, column=1, sticky=tk.W, padx=5, pady=5)
+        self.ent_pv.bind("<KP_Enter>", self.set_pv)
+        self.ent_pv.bind("<Return>", self.set_pv)
         self.but_pv = tk.Button(self.frm1, text='Set PV', command=self.set_pv)
         self.but_pv.grid(row=1, column=2, sticky=tk.EW, padx=5, pady=5)
         # out
@@ -76,60 +79,73 @@ class FrmMain(FrmTab):
         self.lbl_kp.grid(row=3, column=0, sticky=tk.W, padx=5, pady=5)
         self.ent_kp = tk.Entry(self.frm1, width=16, validate='all', textvariable=self.kp_str)
         self.ent_kp.grid(row=3, column=1, sticky=tk.W, padx=5, pady=5)
+        self.ent_kp.bind("<KP_Enter>", self.set_kp)
+        self.ent_kp.bind("<Return>", self.set_kp)
         self.but_kp = tk.Button(self.frm1, text='Set kp', command=self.set_kp)
         self.but_kp.grid(row=3, column=2, sticky=tk.EW, padx=5, pady=5)
         # ti
         self.lbl_ti = tk.Label(self.frm1, text='Ti (s)')
         self.lbl_ti.grid(row=4, column=0, sticky=tk.W, padx=5, pady=5)
         self.ent_ti = tk.Entry(self.frm1, width=16, validate='all', textvariable=self.ti_str)
-        self.ent_ti.bind("<Return>", lambda evt: self.set_ti())
         self.ent_ti.grid(row=4, column=1, sticky=tk.W, padx=5, pady=5)
+        self.ent_ti.bind("<KP_Enter>", self.set_ti)
+        self.ent_ti.bind("<Return>", self.set_ti)
         self.but_ti = tk.Button(self.frm1, text='Set Ti', command=self.set_ti)
         self.but_ti.grid(row=4, column=2, sticky=tk.EW, padx=5, pady=5)
         # td
         self.lbl_td = tk.Label(self.frm1, text='Td (s)')
         self.lbl_td.grid(row=5, column=0, sticky=tk.W, padx=5, pady=5)
         self.ent_td = tk.Entry(self.frm1, width=16, validate='all', textvariable=self.td_str)
-        self.ent_td.bind("<Return>", lambda evt: self.set_td())
         self.ent_td.grid(row=5, column=1, sticky=tk.W, padx=5, pady=5)
+        self.ent_td.bind("<KP_Enter>", self.set_td)
+        self.ent_td.bind("<Return>", self.set_td)
         self.but_td = tk.Button(self.frm1, text='Set Td', command=self.set_td)
         self.but_td.grid(row=5, column=2, sticky=tk.EW, padx=5, pady=5)
         # set out
         self.lbl_set_out = tk.Label(self.frm1, text='Fix out (0/100)')
         self.lbl_set_out.grid(row=6, column=0, sticky=tk.W, padx=5, pady=5)
         self.ent_set_out = tk.Entry(self.frm1, width=16, validate='all', textvariable=self.set_out_str)
-        self.ent_set_out.bind("<Return>", lambda evt: self.set_out())
         self.ent_set_out.grid(row=6, column=1, sticky=tk.W, padx=5, pady=5)
+        self.ent_set_out.bind("<KP_Enter>", self.set_out)
+        self.ent_set_out.bind("<Return>", self.set_out)
         self.but_set_out = tk.Button(self.frm1, text='Set out', command=self.set_out)
         self.but_set_out.grid(row=6, column=2, sticky=tk.EW, padx=5, pady=5)
+        # auto mode
+        self.lbl_mode = tk.Label(self.frm1)
+        self.lbl_mode.grid(row=7, column=0, sticky=tk.W, padx=5, pady=5)
+        self.but_auto_mode = tk.Button(self.frm1, text='Auto mode', command=self.pid.set_auto)
+        self.but_auto_mode.grid(row=7, column=2, sticky=tk.EW, padx=5, pady=5)
+        # manual mode
+        self.but_man_mode = tk.Button(self.frm1, text='Manual mode', command=self.pid.set_man)
+        self.but_man_mode.grid(row=8, column=2, sticky=tk.EW, padx=5, pady=5)
         # start update function
         self.update_pid()
 
-    def set_sp(self):
+    def set_sp(self, *_):
         self.pid.sp = float(self.sp_str.get())
 
-    def set_pv(self):
+    def set_pv(self, *_):
         self.pid.pv = float(self.pv_str.get())
 
-    def set_kp(self):
+    def set_kp(self, *_):
         self.pid.kp = float(self.kp_str.get())
 
-    def set_ti(self):
+    def set_ti(self, *_):
         self.pid.ti = float(self.ti_str.get())
 
-    def set_td(self):
+    def set_td(self, *_):
         self.pid.td = float(self.td_str.get())
 
-    def set_out(self):
+    def set_out(self, *_):
         s_out = float(self.set_out_str.get())
-        self.pid.set_man(s_out)
-        self.pid.update(force=True)
-        self.pid.set_auto()
+        self.pid.out_man = s_out
 
     def update_pid(self):
         if self.pid.update():
             self.pb_out['value'] = self.pid.out
             self.lbl_out['text'] = 'Out = %.2f' % self.pid.out
+            pid_mode_str = "manual" if self.pid.man else "auto"
+            self.lbl_mode['text'] = 'PID mode is %s' % pid_mode_str
         self.after(ms=100, func=self.update_pid)
 
 
