@@ -40,15 +40,11 @@ class PID:
         self.man = False
         self.out_man = 0.0
         # private
-        self._ki = 0.0
         self._term_p = 0.0
         self._term_i = 0.0
         self._term_d = 0.0
         self._last_input = 0.0
         self._err = 0.0
-        self._sum_err = 0.0
-        self._sum_err_max = self.OUT_MAX
-        self._sum_err_min = self.OUT_MIN
         self._last_update = 0.0
 
     @property
@@ -124,19 +120,11 @@ class PID:
 
             # integral term
             # errors sum with second weighting
-            self._sum_err += self._err * delta_t
+            self._term_i += self._err * delta_t / self.ti
 
-            if self.ti > 0.0:
-                self._ki = 1.0 / self.ti
-                # check integral saturation
-                if self._sum_err > self._sum_err_max / self._ki:
-                    self._sum_err = self._sum_err_max / self._ki
-                elif self._sum_err < self._sum_err_min / self._ki:
-                    self._sum_err = self._sum_err_min / self._ki
-            else:
-                self._ki = 0.0
-
-            self._term_i = self._sum_err * self._ki
+            # check integral saturation
+            self._term_i = min(self._term_i, self.OUT_MAX)
+            self._term_i = max(self._term_i, self.OUT_MIN)
 
             # derivative term
             self._term_d = - self.td * ((self.pv_scale - self._last_input) / delta_t)
@@ -146,23 +134,19 @@ class PID:
 
             # compute PID Output
             if self.run:
+                # manual mode
                 if self.man:
+                    # output direct update
                     self.out = self.out_man
+                    # keep integral term in sync
+                    self._term_i = self.out_man - self._term_p - self._term_d
+                # auto mode
                 else:
                     self.out = self._term_p + self._term_i + self._term_d
-
-            # keep sum_err in sync when manual mode or pid stop
-            if self.man or not self.run:
-                self._sum_err = (self.out_man - self.kp * self._err + self._term_d)
-                if self._ki != 0.0:
-                    self._sum_err /= self._ki
 
             # limit PID out
             self.out = min(self.out, self.OUT_MAX)
             self.out = max(self.out, self.OUT_MIN)
-
-            # limit integral max sum
-            self._sum_err_max = self.OUT_MAX
 
             # return true if PID is update
             return True
